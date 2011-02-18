@@ -21,7 +21,11 @@ local HINT_TEXT_ACTIVE = "Press a key to bind, press Escape to clear the binding
 local HINT_TEXT_INACTIVE = "Click the button to bind a key."
 
 local function Button_SetValue( self, value )
-	button:SetText( value )
+	if value and value ~= "" then
+		self:SetText( value )
+	else
+		self:SetText( NOT_BOUND )
+	end
 
 	local action = self.action
 	if action then
@@ -31,11 +35,7 @@ local function Button_SetValue( self, value )
 		if prev1 then SetBinding( prev1 ) end
 		if prev2 then SetBinding( prev2 ) end
 
-		if value and value:len() == 0 then
-			value = nil
-		end
-
-		if value then
+		if value and value:len() > 0 then
 			-- warn if overwriting an existing binding
 			local curr = GetBindingAction( value )
 			if curr and curr:len() > 0 then
@@ -55,6 +55,17 @@ local function Button_SetValue( self, value )
 
 	if self.OnKeyChanged then
 		self:OnKeyChanged( value )
+	end
+end
+
+local function Button_RefreshValue( self )
+	if not self.action then return end
+
+	local key = GetBindingKey( self.action )
+	if key then
+		self:SetText( key )
+	else
+		self:SetText( NOT_BOUND )
 	end
 end
 
@@ -78,17 +89,17 @@ local function Button_OnEnter( self )
 	GameTooltip:Show()
 end
 
-local function Button_OnClick( self )
-	if button == "LeftButton" or button == "RightButton" then
-		if self.waitingForKey then
-			self:EnableKeyboard( false )
-			self:UnlockHighlight()
-			self.waitingForKey = nil
-		else
-			self:EnableKeyboard( true )
-			self:LockHighlight()
-			self.waitingForKey = true
-		end
+local function Button_OnClick( self, button )
+	if button ~= "LeftButton" and button ~= "RightButton" then return end
+
+	if self.waitingForKey then
+		self:EnableKeyboard( false )
+		self:UnlockHighlight()
+		self.waitingForKey = nil
+	else
+		self:EnableKeyboard( true )
+		self:LockHighlight()
+		self.waitingForKey = true
 	end
 end
 
@@ -131,42 +142,52 @@ local function Button_OnKeyDown( self, key )
 	end
 end
 
-local function Button_SetPoint( self, p1, anchor, p2, x, y )
-	if type( anchor ) == "number" then
-		p2 = p2 + self.label:GetStringHeight()
-	elseif type( p2 ) == "number" then
-		x = x + self.label:GetStringHeight()
-	elseif type( x ) == "number" then
-		y = y + self.label:GetStringHeight()
-	end
-	getmetatable( self ).__index.SetPoint( self, p1, anchor, p2, x, y )
+local function Button_SetPoint( self, ... )
+	return self.container:SetPoint( ... )
 end
 
 function lib.CreateKeyBinding( parent, name, action, desc )
-	assert( type(parent) == "table" and parent.CreateFontString, "PhanxConfig-KeyBinding: Parent is not a valid frame!" )
-	if type(name) ~= "string" then name = nil end
-	if type(desc) ~= "string" then desc = nil end
+	assert( type( parent ) == "table" and parent.CreateFontString, "PhanxConfig-KeyBinding: Parent is not a valid frame!" )
+	if type( name ) ~= "string" then name = nil end
+	if type( desc ) ~= "string" then desc = nil end
 
-	local button = PhanxConfigButton.CreateButton( parent, nil, desc )
+	local frame = CreateFrame( "Frame", nil, parent )
+	frame:SetWidth( 186 )
+	frame:SetHeight( 38 )
 
-	button.label = button:CreateFontString( nil, "OVERLAY", "GameFontNormal" )
-	button.label:SetPoint( "BOTTOMLEFT", button, "TOPLEFT", 0, 0 )
-	button.label:SetPoint( "BOTTOMRIGHT", button, "TOPRIGHT", 0, 0 )
-	button.label:SetText( name )
+	frame.bg = frame:CreateTexture( nil, "BACKGROUND" )
+	frame.bg:SetAllPoints( true )
+	frame.bg:SetTexture( 0, 0, 0, 0 )
+
+	local button = PhanxConfigButton.CreateButton( frame, nil, desc )
+	button:SetPoint( "BOTTOMLEFT" )
+	button:SetPoint( "BOTTOMRIGHT" )
+
+	button:SetNormalFontObject( GameFontHighlightSmall )
 
 	button:SetScript( "OnEnter", Button_OnEnter )
 	button:SetScript( "OnClick", Button_OnClick )
 	button:SetScript( "OnKeyDown", Button_OnKeyDown )
 	button:SetScript( "OnMouseDown", Button_OnKeyDown )
 
-	button.action = action
-	button.SetPoint = Button_SetPoint -- overwrite default functionality to accommodate label
-	button.SetValue = Button_SetValue
+	button:EnableKeyboard( false )
+	button:EnableMouse( true )
+	button:RegisterForClicks( "AnyDown" )
 
-	local key = GetBindingKey( action )
-	if key then
-		button:SetText( key )
-	end
+	button.label = button:CreateFontString( nil, "OVERLAY", "GameFontNormal" )
+	button.label:SetPoint( "TOPLEFT", frame, 5, 0 )
+	button.label:SetPoint( "TOPRIGHT", frame, -5, 0 )
+	button.label:SetJustifyH( "LEFT" )
+	button.label:SetText( name )
+
+	button.action = action
+	button.container = frame
+
+	button.SetPoint = Button_SetPoint
+	button.SetValue = Button_SetValue
+	button.RefreshValue = Button_RefreshValue
+
+	button:RefreshValue()
 
 	return button
 end
