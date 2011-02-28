@@ -86,11 +86,6 @@ local function Button_OnEnter( self )
 	local text = self.desc
 	if text then
 		GameTooltip:SetText( text, nil, nil, nil, nil, true )
-		if self.waitingForKey then
-			GameTooltip:AddLine( HINT_TEXT_ACTIVE )
-		else
-			GameTooltip:AddLine( HINT_TEXT_INACTIVE )
-		end
 	elseif self.waitingForKey then
 		GameTooltip:SetText( HINT_TEXT_ACTIVE, nil, nil, nil, nil, true )
 	else
