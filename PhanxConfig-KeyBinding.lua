@@ -12,13 +12,24 @@
 local PhanxConfigButton = LibStub:GetLibrary( "PhanxConfig-Button", true )
 assert( PhanxConfigButton, "PhanxConfig-KeyBinding requires PhanxConfig-Button" )
 
-local MINOR_VERSION = tonumber( string.match( "$Revision: 28 $", "%d+" ) )
+local MINOR_VERSION = tonumber( string.match( "$Revision: 29 $", "%d+" ) )
 
 local lib, oldminor = LibStub:NewLibrary( "PhanxConfig-KeyBinding", MINOR_VERSION )
 if not lib then return end
 
 local HINT_TEXT_ACTIVE = "Press a key to bind, press Escape to clear the binding, or click the button again to cancel."
 local HINT_TEXT_INACTIVE = "Click the button to bind a key."
+
+do
+	local GAME_LOCALE = GetLocale()
+	if GAME_LOCALE == "esES" or GAME_LOCALE == "esMX" then
+		HINT_TEXT_ACTIVE = "Pulse una tecla para asignarlo, pulse Escape para borrar la asignación, o clic en el botón otra vez para cancelar."
+		HINT_TEXT_INACTIVE = "Clic en el botón para asignar una tecla."
+	elseif GAME_LOCALE == "frFR" then
+		HINT_TEXT_ACTIVE = "Appuyez sur une touche pour assigner un raccourci, appuyez sur Echap pour effacer le raccourci, ou cliquez sur le bouton à nouveau pour annuler."
+		HINT_TEXT_INACTIVE = "Cliquez sur le bouton pour assigner une touche."
+	end
+end
 
 local function Button_SetValue( self, value )
 	if value and value ~= "" then
