@@ -152,7 +152,7 @@ local function Button_SetPoint( self, ... )
 	return self.container:SetPoint( ... )
 end
 
-function lib.CreateKeyBinding( parent, name, action, desc )
+function lib.CreateKeyBinding( parent, name, desc, action )
 	assert( type( parent ) == "table" and parent.CreateFontString, "PhanxConfig-KeyBinding: Parent is not a valid frame!" )
 	if type( name ) ~= "string" then name = nil end
 	if type( desc ) ~= "string" then desc = nil end
