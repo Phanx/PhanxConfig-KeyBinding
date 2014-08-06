@@ -1,21 +1,12 @@
 --[[--------------------------------------------------------------------
 	PhanxConfig-KeyBinding
 	Key binding button widget generator.
-	Based on AceGUI-3.0-Keybinding.
+	Originally based on AceGUI-3.0-Keybinding.
 	Requires LibStub.
-	
-	Written by Phanx <addons@phanx.net>
 	https://github.com/phanx/PhanxConfigWidgets
-
-	This is free and unencumbered software released into the public domain.
-	
-	However, if you make any modifications, you are strongly encouraged
-	to give your version a different name, so that you do not break 
-	addons using the original version, or vice versa.
-	
-	And finally, I wrote this library for my own use in my own addons.
-	No support of any kind will be provided for use by anyone else,
-	and its internals may change at any time without any warning.
+	Copyright 2009-2014 Phanx <addons@phanx.net>
+	Do not redistribute standalone without permisssion.
+	See the accompanying LICENSE file for details.
 ----------------------------------------------------------------------]]
 
 local PhanxConfigButton = LibStub:GetLibrary("PhanxConfig-Button", true)
