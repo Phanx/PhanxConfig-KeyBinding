@@ -3,15 +3,14 @@
 	Key binding button widget generator.
 	Originally based on AceGUI-3.0-Keybinding.
 	Requires LibStub.
-	https://github.com/phanx/PhanxConfigWidgets
 	Copyright (c) 2009-2014 Phanx. All rights reserved.
-	See the accompanying README and LICENSE files for more information.
+	https://github.com/phanx/PhanxConfigWidgets
 ----------------------------------------------------------------------]]
+
+local MINOR_VERSION = 172
 
 local PhanxConfigButton = LibStub:GetLibrary("PhanxConfig-Button", true)
 assert(PhanxConfigButton, "PhanxConfig-KeyBinding requires PhanxConfig-Button")
-
-local MINOR_VERSION = tonumber(string.match("$Revision$", "%d+"))
 
 local lib, oldminor = LibStub:NewLibrary("PhanxConfig-KeyBinding", MINOR_VERSION)
 if not lib then return end
