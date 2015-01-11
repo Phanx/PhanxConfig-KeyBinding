@@ -3,18 +3,15 @@
 	Key binding button widget generator. Requires LibStub.
 	Originally based on AceGUI-3.0-Keybinding.
 	https://github.com/Phanx/PhanxConfig-KeyBinding
-
-	Copyright (c) 2009-2014 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2009-2015 Phanx <addons@phanx.net>. All rights reserved.
 	Feel free to include copies of this file WITHOUT CHANGES inside World of
 	Warcraft addons that make use of it as a library, and feel free to use code
 	from this file in other projects as long as you DO NOT use my name or the
-	original name of this library anywhere in your project outside of an optional
-	credits line -- any modified versions must be renamed to avoid conflicts and
-	confusion. If you wish to do something else, or have questions about whether
-	you can do something, email me at the address listed above.
+	original name of this file anywhere in your project outside of an optional
+	credits line -- any modified versions must be renamed to avoid conflicts.
 ----------------------------------------------------------------------]]
 
-local MINOR_VERSION = 172
+local MINOR_VERSION = 150111
 
 local PhanxConfigButton = LibStub:GetLibrary("PhanxConfig-Button", true)
 assert(PhanxConfigButton, "PhanxConfig-KeyBinding requires PhanxConfig-Button")
@@ -151,21 +148,14 @@ function methods:SetValue(value)
 		SaveBindings(GetCurrentBindingSet())
 	end
 
-	local callback = self.OnValueChanged
+	local callback = self.callback or self.OnValueChanged
 	if callback then
 		callback(self, value)
 	end
 end
 
-function methods:GetTooltipText()
-	return self.tooltipText
-end
-function methods:SetTooltipText(text)
-	self.tooltipText = text
-end
-
 function methods:SetCallback(func)
-	self.OnValueChanged = func
+	self.callback = type(func) == "function" and func or nil
 end
 
 function methods:SetPoint(...)
@@ -191,11 +181,11 @@ function lib:New(parent, name, tooltipText, action)
 	frame:SetWidth(186)
 	frame:SetHeight(38)
 
-	frame.bg = frame:CreateTexture(nil, "BACKGROUND")
-	frame.bg:SetAllPoints(true)
-	frame.bg:SetTexture(0, 0, 0, 0)
+	--frame.bg = frame:CreateTexture(nil, "BACKGROUND")
+	--frame.bg:SetAllPoints(true)
+	--frame.bg:SetTexture(0, 0, 0, 0)
 
-	local button = PhanxConfigButton.CreateButton(frame, nil, tooltipText)
+	local button = PhanxConfigButton:New(frame, nil, tooltipText)
 	button:SetPoint("BOTTOMLEFT")
 	button:SetPoint("BOTTOMRIGHT")
 
