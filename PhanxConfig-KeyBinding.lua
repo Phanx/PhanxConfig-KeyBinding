@@ -11,7 +11,7 @@
 	credits line -- any modified versions must be renamed to avoid conflicts.
 ----------------------------------------------------------------------]]
 
-local MINOR_VERSION = 150111
+local MINOR_VERSION = 20150112
 
 local PhanxConfigButton = LibStub:GetLibrary("PhanxConfig-Button", true)
 assert(PhanxConfigButton, "PhanxConfig-KeyBinding requires PhanxConfig-Button")
@@ -46,7 +46,6 @@ local scripts = {} -- these are set on the button, not the container
 
 function scripts:OnEnter()
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-
 	if self.tooltipText then
 		GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
 	elseif self.waitingForKey then
@@ -54,9 +53,10 @@ function scripts:OnEnter()
 	else
 		GameTooltip:SetText(HINT_TEXT_INACTIVE, nil, nil, nil, nil, true)
 	end
-
 	GameTooltip:Show()
 end
+
+scripts.OnLeave = GameTooltip_Hide
 
 function scripts:OnClick(button)
 	if button ~= "LeftButton" and button ~= "RightButton" then return end
@@ -115,6 +115,7 @@ local methods = {} -- these are set on the button, not the container
 function methods:GetValue()
 	return self.action and GetBindingKey(self.action) or nil
 end
+
 function methods:SetValue(value)
 	if value and value ~= "" then
 		self:SetText(value)
@@ -148,26 +149,23 @@ function methods:SetValue(value)
 		SaveBindings(GetCurrentBindingSet())
 	end
 
-	local callback = self.callback or self.OnValueChanged
+	local callback = self.OnValueChanged or self.Callback or self.callback
 	if callback then
 		callback(self, value)
 	end
 end
 
-function methods:SetCallback(func)
-	self.callback = type(func) == "function" and func or nil
-end
-
-function methods:SetPoint(...)
-	return self.container:SetPoint(...)
-end
-
 function methods:RefreshValue()
 	self:SetText(self:GetValue() or NOT_BOUND)
+	self:EnableKeyboard(false) -- no idea why this needs to be here, but...
 end
 
 function methods:SetBindingAction(action)
 	self.action = action
+end
+
+function methods:SetPoint(...)
+	return self.container:SetPoint(...)
 end
 
 ------------------------------------------------------------------------
@@ -178,8 +176,7 @@ function lib:New(parent, name, tooltipText, action)
 	if type(tooltipText) ~= "string" then tooltipText = nil end
 
 	local frame = CreateFrame("Frame", nil, parent)
-	frame:SetWidth(186)
-	frame:SetHeight(38)
+	frame:SetSize(186, 38)
 
 	--frame.bg = frame:CreateTexture(nil, "BACKGROUND")
 	--frame.bg:SetAllPoints(true)
@@ -193,7 +190,7 @@ function lib:New(parent, name, tooltipText, action)
 	label:SetPoint("TOPLEFT", frame, 5, 0)
 	label:SetPoint("TOPRIGHT", frame, -5, 0)
 	label:SetJustifyH("LEFT")
-	button.label = label
+	button.labelText = label
 
 	button:SetNormalFontObject(GameFontHighlightSmall)
 	button:EnableKeyboard(false)
